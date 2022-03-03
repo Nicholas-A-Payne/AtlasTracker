@@ -5,6 +5,7 @@ namespace AtlasTracker.Models
 {
     public class Ticket
     {
+
         //primary Key
         public int Id { get; set; }
 

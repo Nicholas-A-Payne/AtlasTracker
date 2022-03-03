@@ -8,16 +8,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AtlasTracker.Data;
 using AtlasTracker.Models;
+using AtlasTracker.Services.Interfaces;
 
 namespace AtlasTracker.Controllers
 {
     public class CompaniesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IBTCompanyInfoService _companyInfoService;
 
-        public CompaniesController(ApplicationDbContext context)
+        public CompaniesController(ApplicationDbContext context, 
+                                   IBTCompanyInfoService companyInfoService)
         {
             _context = context;
+            _companyInfoService = companyInfoService;
         }
 
         // GET: Companies
@@ -34,8 +38,8 @@ namespace AtlasTracker.Controllers
                 return NotFound();
             }
 
-            var company = await _context.Companies
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var company = await _companyInfoService.GetCompanyInfoByIdAsync(id);
+
             if (company == null)
             {
                 return NotFound();

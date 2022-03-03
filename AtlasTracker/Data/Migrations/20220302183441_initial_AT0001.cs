@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace AtlasTracker.Data.Migrations
 {
-    public partial class Initial_AT0001 : Migration
+    public partial class initial_AT0001 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -167,7 +167,7 @@ namespace AtlasTracker.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Name = table.Column<string>(type: "character varying(240)", maxLength: 240, nullable: false),
                     Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),

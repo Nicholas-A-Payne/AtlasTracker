@@ -6,12 +6,13 @@ namespace AtlasTracker.Models
 {
     public class Project
     {
+
         //Primary Key
         public int Id { get; set; }
 
         //Basic Info--------------------------------------------------------------------------------------------------
         [Required]
-        [StringLength(30, ErrorMessage = "The {0} must be {2} and at most {1} characters long", MinimumLength = 2)]
+        [StringLength(240, ErrorMessage = "The {0} must be {2} and at most {1} characters long", MinimumLength = 2)]
         [DisplayName("Project name")]
         public string? Name { get; set; }
 

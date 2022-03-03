@@ -1,15 +1,16 @@
 using AtlasTracker.Data;
 using AtlasTracker.Models;
+using AtlasTracker.Services;
+using AtlasTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = DataUtility.GetConnectionString(builder.Configuration);
 
-builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -21,13 +22,15 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.Re
 
 
 //Custome Services---------------------------------------------------------------------------------------------------
-    
+builder.Services.AddScoped<IBTCompanyInfoService, BTCompanyInfoService>();
 
 
 
 builder.Services.AddMvc();
 
 var app = builder.Build();
+var scope = app.Services.CreateScope();
+await DataUtility.ManageDataAsync(scope.ServiceProvider);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
