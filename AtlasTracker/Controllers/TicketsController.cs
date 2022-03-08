@@ -8,16 +8,37 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AtlasTracker.Data;
 using AtlasTracker.Models;
+using AtlasTracker.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using AtlasTracker.Extensions;
 
 namespace AtlasTracker.Controllers
 {
     public class TicketsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IBTProjectService _projectService;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IBTCompanyInfoService _companyInfoService;
+        private readonly IBTRolesService _rolesService;
+        private readonly IBTLookUpService _lookUpService;
+        private readonly IBTTicketService _ticketService;
 
-        public TicketsController(ApplicationDbContext context)
+        public TicketsController(ApplicationDbContext context,
+                                  IBTProjectService projectService,
+                                  UserManager<AppUser> userManager,
+                                  IBTRolesService rolesService,
+                                  IBTLookUpService lookUpService,
+                                  IBTCompanyInfoService companyInfoService, 
+                                  IBTTicketService ticketService)
         {
             _context = context;
+            _projectService = projectService;
+            _userManager = userManager;
+            _rolesService = rolesService;
+            _lookUpService = lookUpService;
+            _companyInfoService = companyInfoService;
+            _ticketService = ticketService;
         }
 
         // GET: Tickets
@@ -25,6 +46,37 @@ namespace AtlasTracker.Controllers
         {
             var applicationDbContext = _context.Tickets.Include(t => t.DeveloperUser).Include(t => t.OwnerUser).Include(t => t.Projects).Include(t => t.TicketPriority).Include(t => t.TicketStatus).Include(t => t.TicketTypes);
             return View(await applicationDbContext.ToListAsync());
+        }
+
+        public async Task<IActionResult> MyTickets()
+        {
+            int companyId = User.Identity.GetCompanyId();
+            string userId = _userManager.GetUserId(User);
+            List<Ticket> tickets = await _ticketService.GetTicketsByUserIdAsync(userId, companyId);
+            return View(tickets);
+        }
+
+        public async Task<IActionResult> AllTickets()
+        {
+            List<Ticket> tickets = new();
+            int companyId = User.Identity.GetCompanyId();
+
+            tickets = (await _ticketService.GetAllTicketsByCompanyAsync(companyId)).Where(t => t.Archived == false).ToList();
+            return View(tickets);
+        }
+
+        public async Task<IActionResult> ArchivedTickets()
+        {
+            int companyId = User.Identity.GetCompanyId();
+            List<Ticket> tickets = await _ticketService.GetArchivedTicketsAsync(companyId);
+            return View(tickets);
+        }
+
+        public async Task<IActionResult> UnassignedTickets()
+        {
+            int companyId = User.Identity.GetCompanyId();
+            List<Ticket> tickets = await _ticketService.GetUnassignedTicketsAsync(companyId);
+            return View(tickets);
         }
 
         // GET: Tickets/Details/5

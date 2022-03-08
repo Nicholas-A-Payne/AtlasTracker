@@ -12,7 +12,7 @@ namespace AtlasTracker.Services.Interfaces
 
         public Task ArchiveProjectAsync(Project project);
 
-        public Task<List<Project>> GetAllProjectsByCompany(int companyId);
+        public Task<List<Project>> GetAllProjectsByCompanyAsync(int companyId);
 
         public Task<List<Project>> GetAllProjectsByPriority(int companyId, string priorityName);
 
@@ -26,6 +26,8 @@ namespace AtlasTracker.Services.Interfaces
 
         public Task<List<AppUser>> GetProjectMembersByRoleAsync(int projectId, string role);
 
+        public Task<List<Project>> GetUnassignedProjectsAsync(int companyId);
+
         public Task<Project> GetProjectByIdAsync(int projectId, int companyId);
 
         public Task<List<AppUser>> GetSubmittersOnProjectAsync(int projectId);
@@ -36,7 +38,7 @@ namespace AtlasTracker.Services.Interfaces
 
         public Task<bool> IsAssignedProjectManagerAsync(string userId, int projectId);
 
-        public Task<bool> IsUserOnProject(string userId, int projectId);
+        public Task<bool> IsUserOnProjectAsync(string userId, int projectId);
 
         public Task<int> LookupProjectPriorityId(string priorityName);
 

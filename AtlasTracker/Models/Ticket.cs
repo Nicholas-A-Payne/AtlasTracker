@@ -46,6 +46,7 @@ namespace AtlasTracker.Models
         public string? DeveloperUserId { get; set; }
 
 
+
         //Navigation--------------------------------------------------------------------------------------
         [DisplayName("Project")]
         public virtual Project? Projects { get; set; }

@@ -28,6 +28,8 @@ builder.Services.AddScoped<IBTRolesService, BTRoleService>();
 builder.Services.AddScoped<IBTCompanyInfoService, BTCompanyInfoService>();
 builder.Services.AddScoped<IBTProjectService, BTProjectService>();
 builder.Services.AddScoped<IBTTicketService, BTTicketService>();
+builder.Services.AddScoped<IBTLookUpService, BTLookUpService>();
+builder.Services.AddScoped<IBTFileService, BTFileService>();
 
 
 
