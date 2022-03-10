@@ -21,38 +21,31 @@ namespace AtlasTracker.Controllers
     public class ProjectsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IBTProjectService _projectService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IBTProjectService _projectService;
         private readonly IBTCompanyInfoService _companyInfoService;
         private readonly IBTRolesService _rolesService;
         private readonly IBTLookUpService _lookUpService;
         private readonly IBTFileService _fileService;
 
-        public ProjectsController(ApplicationDbContext context,
-                                  IBTProjectService projectService,
+        public ProjectsController(IBTProjectService projectService,
                                   UserManager<AppUser> userManager,
                                   IBTRolesService rolesService,
                                   IBTLookUpService lookUpService,
-                                  IBTCompanyInfoService companyInfoService, 
-                                  IBTFileService fileService)
+                                  IBTCompanyInfoService companyInfoService,
+                                  IBTFileService fileService, 
+                                  ApplicationDbContext context)
         {
-            _context = context;
+            //_context = context;
             _projectService = projectService;
             _userManager = userManager;
             _rolesService = rolesService;
             _lookUpService = lookUpService;
             _companyInfoService = companyInfoService;
             _fileService = fileService;
+            _context = context;
         }
 
-        //My Projects
-        public async Task<IActionResult> Index()
-        {
-            int companyId = User.Identity.GetCompanyId();
-            string userId = _userManager.GetUserId(User);
-            var projects = await _projectService.GetUserProjectsAsync(userId);
-            return View(projects);
-        }
 
         public async Task<IActionResult> MyProjects()
         {
@@ -131,6 +124,58 @@ namespace AtlasTracker.Controllers
             return RedirectToAction(nameof(AssignPM), new { projectId = model.Project!.Id});
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Admin, ProjectManager")]
+        public async Task<IActionResult> AssignMembers(int? projectId)
+        {
+            if(projectId == null)
+            {
+                return NotFound();
+            }
+
+            ProjectMembersViewModel model = new();
+
+            int companyId = User.Identity.GetCompanyId();
+            List<AppUser> developers = await _rolesService.GetUsersInRoleAsync(nameof(AppRole.Developer), companyId);
+            List<AppUser> submitters = await _rolesService.GetUsersInRoleAsync(nameof(AppRole.Submitter), companyId);
+
+            List<AppUser> teamMembers = developers.Concat(submitters).ToList();
+
+            List<string> projectMembers = model.Project.Members.Select(x => x.Id).ToList(); 
+
+            model.UsersList = new MultiSelectList( teamMembers, "Id", "FullName", projectMembers);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignMembers(ProjectMembersViewModel model)
+        {
+            if(model.SelectedUsers != null)
+            {
+                List<string> memberIds = (await _projectService.GetAllProjectMembersExceptPMAsync(model.Project.Id))
+                                                                                                .Select(x => x.Id).ToList();
+
+                //Remove current Members
+                foreach(string member in memberIds)
+                {
+                    await _projectService.RemoveUserFromProjectAsync(member, model.Project.Id);
+                }
+
+                foreach(string member in model.SelectedUsers)
+                {
+                    await _projectService.AddUserToProjectAsync(member, model.Project.Id);
+                }
+
+                //go to project details
+                return RedirectToAction("Details", "Projects", new { id = model.Project.Id });
+            }
+
+            return RedirectToAction(nameof(AssignMembers), new { id = model.Project.Id });
+             
+        }
+
 
 
         // GET: Projects/Details/5
@@ -140,12 +185,19 @@ namespace AtlasTracker.Controllers
             {
                 return NotFound();
             }
-            string userId = _userManager.GetUserId(User);
-            AppUser appUser =  _context.Users.Find(userId);
 
-            int companyId = User.Identity.GetCompanyId();
+            // Remember that the _context should not be used directly in the controller so....     
 
-            Project project = await _projectService.GetProjectByIdAsync(id.Value, companyId);
+            // Edit the following code to use the service layer. 
+            // Your goal is to return the 'project' from the databse
+            // with the Id equal to the parameter passed in.               
+            // This is the only modification necessary for this method/action.     
+
+            var project = await _context.Projects
+                .Include(p => p.Company)
+                .Include(p => p.ProjectPriority)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
 
             if (project == null)
             {
@@ -277,7 +329,7 @@ namespace AtlasTracker.Controllers
                         await _projectService.AddProjectManagerAsync(model.PMID, model.Project.Id);
                     }
 
-                    return RedirectToAction("Index");
+                    return RedirectToAction("AllProjects");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -297,18 +349,17 @@ namespace AtlasTracker.Controllers
             return View(model);
         }
 
-        // GET: Projects/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: Projects/Archive/5
+        public async Task<IActionResult> Archive(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
+            int companyId = User.Identity.GetCompanyId();
+            var project = await _projectService.GetProjectByIdAsync(id.Value, companyId);
+            
 
-            var project = await _context.Projects
-                .Include(p => p.Company)
-                .Include(p => p.ProjectPriority)
-                .FirstOrDefaultAsync(m => m.Id == id);
             if (project == null)
             {
                 return NotFound();
@@ -317,16 +368,53 @@ namespace AtlasTracker.Controllers
             return View(project);
         }
 
-        // POST: Projects/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Projects/Archive/5
+        [HttpPost, ActionName("Archive")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> ArchiveConfirmed(int id)
         {
-            var project = await _context.Projects.FindAsync(id);
-            _context.Projects.Remove(project);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            int companyId = User.Identity.GetCompanyId();
+            var project = await _projectService.GetProjectByIdAsync(id, companyId);
+
+            await _projectService.ArchiveProjectAsync(project);
+
+
+            return RedirectToAction(nameof(AllProjects));
         }
+
+        // GET: Projects/Restore/5
+        public async Task<IActionResult> Restore(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            int companyId = User.Identity.GetCompanyId();
+            var project = await _projectService.GetProjectByIdAsync(id.Value, companyId);
+
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            return View(project);
+        }
+
+        // POST: Projects/Restore/5
+        [HttpPost, ActionName("Restore")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestoreConfirmed(int id)
+        {
+            int companyId = User.Identity.GetCompanyId();
+            var project = await _projectService.GetProjectByIdAsync(id, companyId);
+
+            await _projectService.RestoreProjectAsync(project);
+
+
+            return RedirectToAction(nameof(AllProjects));
+        }
+
 
         private async Task<bool> ProjectExists(int id)
         {

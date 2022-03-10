@@ -23,6 +23,7 @@ namespace AtlasTracker.Services.Interfaces
         public Task<List<Ticket>> GetProjectTicketsByStatusAsync(string statusName, int companyId, int projectId);
         public Task<List<Ticket>> GetProjectTicketsByPriorityAsync(string priorityName, int companyId, int projectId);
         public Task<List<Ticket>> GetProjectTicketsByTypeAsync(string typeName, int companyId, int projectId);
+        public Task RestoreTicketAsync(Ticket ticket);
 
 
         public Task<int?> LookupTicketPriorityIdAsync(string priorityName);

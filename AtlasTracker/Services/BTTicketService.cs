@@ -610,5 +610,20 @@ namespace AtlasTracker.Services
         }
 
         #endregion
+
+        public async Task RestoreTicketAsync(Ticket ticket)
+        {
+            try
+            {
+                ticket.Archived = false;
+                await UpdateTicketAsync(ticket);
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }
