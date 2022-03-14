@@ -484,29 +484,33 @@ namespace AtlasTracker.Services
         #region Get Tickets By User Id
         public async Task<List<Ticket>> GetTicketsByUserIdAsync(string userId, int companyId)
         {
-            AppUser btUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            AppUser appUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             List<Ticket> tickets = new();
 
             try
             {
-                if (await _rolesService.IsUserInRoleAsync(btUser, AppRole.Admin.ToString()))
+                if (await _rolesService.IsUserInRoleAsync(appUser, AppRole.Admin.ToString()))
                 {
                     tickets = (await _projectService.GetAllProjectsByCompanyAsync(companyId))
                                                     .SelectMany(p => p.Tickets).ToList();
                 }
-                else if (await _rolesService.IsUserInRoleAsync(btUser, AppRole.Developer.ToString()))
+                else if (await _rolesService.IsUserInRoleAsync(appUser, AppRole.Developer.ToString()))
                 {
                     tickets = (await _projectService.GetAllProjectsByCompanyAsync(companyId))
-                                                    .SelectMany(p => p.Tickets).Where(t => t.DeveloperUserId == userId).ToList();
+                                                    .SelectMany(p => p.Tickets).Where(t => t.DeveloperUserId == userId || t.OwnerUserId == userId).ToList();
                 }
-                else if (await _rolesService.IsUserInRoleAsync(btUser, AppRole.Submitter.ToString()))
+                else if (await _rolesService.IsUserInRoleAsync(appUser, AppRole.Submitter.ToString()))
                 {
                     tickets = (await _projectService.GetAllProjectsByCompanyAsync(companyId))
                                                     .SelectMany(t => t.Tickets).Where(t => t.OwnerUserId == userId).ToList();
                 }
-                else if (await _rolesService.IsUserInRoleAsync(btUser, AppRole.ProjectManager.ToString()))
+                else if (await _rolesService.IsUserInRoleAsync(appUser, AppRole.ProjectManager.ToString()))
                 {
-                    tickets = (await _projectService.GetUserProjectsAsync(userId)).SelectMany(t => t.Tickets).ToList();
+                    List<Ticket>? projectTickets = (await _projectService.GetUserProjectsAsync(userId)).SelectMany(t => t.Tickets!).ToList();
+                    List<Ticket>? submittedTickets = (await _projectService.GetAllProjectsByCompanyAsync(companyId)).SelectMany(p => p.Tickets!)
+                                                                                                                    .Where(t => t.OwnerUserId == userId)
+                                                                                                                    .ToList();
+                    tickets = projectTickets.Concat(submittedTickets).ToList();
                 }
 
                 return tickets;
@@ -610,6 +614,21 @@ namespace AtlasTracker.Services
         }
 
         #endregion
+
+        public async Task AddTicketAttatchmentAsync(TicketAttatchment ticketAttachment)
+        {
+            try
+            {
+                await _context.AddAsync(ticketAttachment);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
 
         public async Task RestoreTicketAsync(Ticket ticket)
         {

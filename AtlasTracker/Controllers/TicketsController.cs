@@ -12,6 +12,9 @@ using AtlasTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using AtlasTracker.Extensions;
 using AtlasTracker.Models.Enum;
+using AtlasTracker.Services;
+using AtlasTracker.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AtlasTracker.Controllers
 {
@@ -24,6 +27,8 @@ namespace AtlasTracker.Controllers
         private readonly IBTRolesService _rolesService;
         private readonly IBTLookUpService _lookUpService;
         private readonly IBTTicketService _ticketService;
+        private readonly IBTFileService _fileService;
+        private readonly IBTTicketHistoryService _ticketHistoryService;
 
         public TicketsController(ApplicationDbContext context,
                                   IBTProjectService projectService,
@@ -31,7 +36,9 @@ namespace AtlasTracker.Controllers
                                   IBTRolesService rolesService,
                                   IBTLookUpService lookUpService,
                                   IBTCompanyInfoService companyInfoService,
-                                  IBTTicketService ticketService)
+                                  IBTTicketService ticketService,
+                                  IBTFileService fileService,
+                                  IBTTicketHistoryService ticketHistoryService)
         {
             _context = context;
             _projectService = projectService;
@@ -40,19 +47,22 @@ namespace AtlasTracker.Controllers
             _lookUpService = lookUpService;
             _companyInfoService = companyInfoService;
             _ticketService = ticketService;
+            _fileService = fileService;
+            _ticketHistoryService = ticketHistoryService;
         }
 
         // GET: Tickets
-        public async Task<IActionResult> Index()
-        {
-            var applicationDbContext = _context.Tickets.Include(t => t.DeveloperUser).Include(t => t.OwnerUser).Include(t => t.Projects).Include(t => t.TicketPriority).Include(t => t.TicketStatus).Include(t => t.TicketTypes);
-            return View(await applicationDbContext.ToListAsync());
-        }
+        //public async Task<IActionResult> Index()
+        //{
+        //    var applicationDbContext = _context.Tickets.Include(t => t.DeveloperUser).Include(t => t.OwnerUser).Include(t => t.Projects).Include(t => t.TicketPriority).Include(t => t.TicketStatus).Include(t => t.TicketTypes);
+        //    return View(await applicationDbContext.ToListAsync());
+        //}
 
         public async Task<IActionResult> MyTickets()
         {
             int companyId = User.Identity.GetCompanyId();
             string userId = _userManager.GetUserId(User);
+
             List<Ticket> tickets = await _ticketService.GetTicketsByUserIdAsync(userId, companyId);
             return View(tickets);
         }
@@ -66,7 +76,7 @@ namespace AtlasTracker.Controllers
             if (User.IsInRole(nameof(AppRole.Admin)) || User.IsInRole(nameof(AppRole.ProjectManager)))
             {
                 tickets = await _ticketService.GetAllTicketsByCompanyAsync(companyId);
-                 
+
             }
             else
             {
@@ -86,10 +96,98 @@ namespace AtlasTracker.Controllers
 
         public async Task<IActionResult> UnassignedTickets()
         {
+            string userId = _userManager.GetUserId(User);
             int companyId = User.Identity.GetCompanyId();
-            List<Ticket> tickets = new();
-            tickets = await _ticketService.GetUnassignedTicketsAsync(companyId);
-            return View(tickets);
+            List<Ticket> tickets = await _ticketService.GetUnassignedTicketsAsync(companyId);
+
+            if (User.IsInRole(nameof(AppRole.Admin)))
+            {
+                return View(tickets);
+            }
+            else
+            {
+                List<Ticket> pmTickets = new();
+
+                foreach (Ticket ticket in tickets)
+                {
+                    if (await _projectService.IsAssignedProjectManagerAsync(userId, ticket.ProjectId))
+                    {
+                        pmTickets.Add(ticket);
+                    }
+
+                }
+
+                return View(pmTickets);
+            }
+
+
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AssignPM(int id)
+        {
+
+            AssignDeveloperViewModel model = new();
+
+            model.Ticket = await _ticketService.GetTicketByIdAsync(id);
+            model.Developers = new SelectList(await _projectService.GetProjectMembersByRoleAsync(model.Ticket.ProjectId, nameof(AppRole.Developer)), 
+                                                "Id", "FullName");
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignDeveloper(AssignDeveloperViewModel model)
+        {
+            if (model.DeveloperId != null)
+            {
+                AppUser appUser = await _userManager.GetUserAsync(User);
+
+                Ticket oldTicket = await _ticketService.GetTicketAsNoTrackingAsync(model.Ticket!.Id);
+
+                try
+                {
+                    await _ticketService.AssignTicketAsync(model.Ticket.Id, model.DeveloperId);
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+                Ticket newTicket = await _ticketService.GetTicketAsNoTrackingAsync(model.Ticket.Id);
+                await _ticketHistoryService.AddHistoryAsync(oldTicket, newTicket, appUser.Id);
+            }
+            return RedirectToAction(nameof(Details));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddTicketComment([Bind("Id, TicketId, Comment")] TicketComment ticketcomment)
+        {
+            ModelState.Remove("UserId");
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    ticketcomment.UserId = _userManager.GetUserId(User);
+                    ticketcomment.Created = DateTime.UtcNow;
+
+                    await _ticketService.AddTicketCommentAsync(ticketcomment);
+
+
+                    //Add History
+                    await _ticketHistoryService.AddHistoryAsync(ticketcomment.TicketId, nameof(TicketComment), ticketcomment.UserId);
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+
+            return RedirectToAction("Details", new { id = ticketcomment.TicketId });
         }
 
         // GET: Tickets/Details/5
@@ -105,9 +203,11 @@ namespace AtlasTracker.Controllers
                 .Include(t => t.OwnerUser)
                 .Include(t => t.Projects)
                 .Include(t => t.TicketPriority)
+                .Include(t => t.Attatchments)
                 .Include(t => t.TicketStatus)
                 .Include(t => t.TicketTypes)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (ticket == null)
             {
                 return NotFound();
@@ -117,14 +217,23 @@ namespace AtlasTracker.Controllers
         }
 
         // GET: Tickets/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Id");
-            ViewData["OwnerUserId"] = new SelectList(_context.Users, "Id", "Id");
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description");
-            ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name");
-            ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name");
-            ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Name");
+            AppUser appUser = await _userManager.GetUserAsync(User);
+            if (User.IsInRole(nameof(AppRole.Admin)))
+            {
+                ViewData["ProjectId"] = new SelectList(await _projectService.GetAllProjectsByCompanyAsync(appUser.CompanyId), "Id", "Name");
+            }
+            else
+            {
+                ViewData["ProjectId"] = new SelectList(await _projectService.GetUserProjectsAsync(appUser.Id), "Id", "Name");
+            }
+
+
+
+            ViewData["TicketPriorityId"] = new SelectList(await _lookUpService.GetTicketPrioritiesAsync(), "Id", "Name");
+            ViewData["TicketTypeId"] = new SelectList(await _lookUpService.GetTicketTypesAsync(), "Id", "Name");
+
             return View();
         }
 
@@ -133,20 +242,54 @@ namespace AtlasTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,Created,Updated,Archived,ArchivedByProject,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId,OwnerUserId,DeveloperUserId")] Ticket ticket)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId,OwnerUserId,DeveloperUserId")] Ticket ticket)
         {
+            AppUser appUser = await _userManager.GetUserAsync(User);
+            string userId = _userManager.GetUserId(User);
+            ModelState.Remove("OwnerUserId");
+
             if (ModelState.IsValid)
             {
-                _context.Add(ticket);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    ticket.Created = DateTime.UtcNow;
+                    ticket.OwnerUserId = userId;
+
+                    ticket.TicketStatusId = (await _ticketService.LookupTicketStatusIdAsync(nameof(EnumTicketStatus.New))).Value;
+
+                    await _ticketService.AddNewTicketAsync(ticket);
+
+                    //Ticket Hisotry
+                    Ticket newTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id);
+                    await _ticketHistoryService.AddHistoryAsync(null!, newTicket, appUser.Id);
+
+                    //Ticket Notification
+
+
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+                return RedirectToAction(nameof(AllTickets));
             }
-            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.DeveloperUserId);
-            ViewData["OwnerUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.OwnerUserId);
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description", ticket.ProjectId);
-            ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name", ticket.TicketPriorityId);
-            ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name", ticket.TicketStatusId);
-            ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Name", ticket.TicketTypeId);
+
+            if (User.IsInRole(nameof(AppRole.Admin)))
+            {
+                ViewData["ProjectId"] = new SelectList(await _projectService.GetAllProjectsByCompanyAsync(appUser.CompanyId), "Id", "Name");
+            }
+            else
+            {
+                ViewData["ProjectId"] = new SelectList(await _projectService.GetUserProjectsAsync(appUser.Id), "Id", "Name");
+            }
+
+
+
+            ViewData["TicketPriorityId"] = new SelectList(await _lookUpService.GetTicketPrioritiesAsync(), "Id", "Name");
+            ViewData["TicketTypeId"] = new SelectList(await _lookUpService.GetTicketTypesAsync(), "Id", "Name");
+
             return View(ticket);
         }
 
@@ -158,17 +301,17 @@ namespace AtlasTracker.Controllers
                 return NotFound();
             }
 
-            var ticket = await _context.Tickets.FindAsync(id);
+            Ticket ticket = await _ticketService.GetTicketByIdAsync(id.Value);
+
             if (ticket == null)
             {
                 return NotFound();
             }
-            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.DeveloperUserId);
-            ViewData["OwnerUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.OwnerUserId);
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description", ticket.ProjectId);
-            ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name", ticket.TicketPriorityId);
-            ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name", ticket.TicketStatusId);
-            ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Name", ticket.TicketTypeId);
+
+            ViewData["TicketPriorityId"] = new SelectList(await _lookUpService.GetTicketPrioritiesAsync(), "Id", "Name", ticket.TicketPriorityId);
+            ViewData["TicketStatusId"] = new SelectList(await _lookUpService.GetTicketStatusesAsync(), "Id", "Name", ticket.TicketStatusId);
+            ViewData["TicketTypeId"] = new SelectList(await _lookUpService.GetTicketTypesAsync(), "Id", "Name", ticket.TicketTypeId);
+
             return View(ticket);
         }
 
@@ -186,10 +329,13 @@ namespace AtlasTracker.Controllers
 
             if (ModelState.IsValid)
             {
+                AppUser appUser = await _userManager.GetUserAsync(User);
+                Ticket oldTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id); 
                 try
                 {
-                    _context.Update(ticket);
-                    await _context.SaveChangesAsync();
+                    ticket.Updated = DateTime.UtcNow;
+                    await _ticketService.UpdateTicketAsync(ticket);
+                    
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -202,15 +348,43 @@ namespace AtlasTracker.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+
+                Ticket newTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id);
+                await _ticketHistoryService.AddHistoryAsync(oldTicket, newTicket, appUser.Id);
+
+                return RedirectToAction(nameof(AllTickets));
             }
-            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.DeveloperUserId);
-            ViewData["OwnerUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.OwnerUserId);
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description", ticket.ProjectId);
-            ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name", ticket.TicketPriorityId);
-            ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name", ticket.TicketStatusId);
-            ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Name", ticket.TicketTypeId);
+            ViewData["TicketPriorityId"] = new SelectList(await _lookUpService.GetTicketPrioritiesAsync(), "Id", "Name", ticket.TicketPriorityId);
+            ViewData["TicketStatusId"] = new SelectList(await _lookUpService.GetTicketStatusesAsync(), "Id", "Name", ticket.TicketStatusId);
+            ViewData["TicketTypeId"] = new SelectList(await _lookUpService.GetTicketTypesAsync(), "Id", "Name", ticket.TicketTypeId);
             return View(ticket);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTicketAttachment([Bind("Id,FormFile,Description,TicketId")] TicketAttatchment ticketAttachment)
+        {
+            string statusMessage;
+
+            if (ModelState.IsValid && ticketAttachment.FormFile != null)
+            {
+                ticketAttachment.FileData = await _fileService.ConvertFileToByteArrayAsync(ticketAttachment.FormFile);
+                ticketAttachment.FileName = ticketAttachment.FormFile.FileName;
+                ticketAttachment.FileType = ticketAttachment.FormFile.ContentType;
+
+                ticketAttachment.Created = DateTimeOffset.Now;
+                ticketAttachment.UserId = _userManager.GetUserId(User);
+
+                await _ticketService.AddTicketAttachmentAsync(ticketAttachment);
+                statusMessage = "Success: New attachment added to Ticket.";
+            }
+            else
+            {
+                statusMessage = "Error: Invalid data.";
+
+            }
+
+            return RedirectToAction("Details", new { id = ticketAttachment.TicketId, message = statusMessage });
         }
 
         // GET: Tickets/Archive/5
@@ -276,9 +450,18 @@ namespace AtlasTracker.Controllers
             return RedirectToAction(nameof(AllTickets));
         }
 
+
+
         private bool TicketExists(int id)
         {
             return _context.Tickets.Any(e => e.Id == id);
         }
+
+        //private async Task<bool> TicketExists(int id)
+        //{
+        //    int companyId = User.Identity.GetCompanyId();
+
+        //    return (await _ticketService.GetAllTicketsByCompanyAsync(companyId)).Any(t => t.Id == id);
+        //}
     }
 }

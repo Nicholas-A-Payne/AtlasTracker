@@ -252,7 +252,7 @@ namespace AtlasTracker.Controllers
                     {
                         await _projectService.AddProjectManagerAsync(model.PMID, model.Project.Id);
                     }
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(AllProjects));
                 }
                 catch (Exception)
                 {
