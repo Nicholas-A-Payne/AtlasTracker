@@ -153,14 +153,14 @@ namespace AtlasTracker.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CommentId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("CompanyId")
+                    b.Property<int>("CompanyId")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("CompanyToken")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("InviteDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("InviteeEmail")
                         .IsRequired()
@@ -183,9 +183,6 @@ namespace AtlasTracker.Data.Migrations
 
                     b.Property<bool>("IsValid")
                         .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset>("IviteDate")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset?>("JoinDate")
                         .HasColumnType("timestamp with time zone");
@@ -736,7 +733,9 @@ namespace AtlasTracker.Data.Migrations
                 {
                     b.HasOne("AtlasTracker.Models.Company", "Company")
                         .WithMany("Invites")
-                        .HasForeignKey("CompanyId");
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("AtlasTracker.Models.AppUser", "Invitee")
                         .WithMany()

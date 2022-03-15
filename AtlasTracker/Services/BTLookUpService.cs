@@ -24,7 +24,6 @@ namespace AtlasTracker.Services
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

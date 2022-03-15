@@ -10,7 +10,7 @@ namespace AtlasTracker.Models
 
 //Invite Properties---------------------------------------------------------------------------------------
         [DisplayName("Date Sent")]
-        public DateTimeOffset IviteDate { get; set; }
+        public DateTimeOffset InviteDate { get; set; }
 
         [DisplayName("Join Date")]
         public DateTimeOffset? JoinDate { get; set; }
@@ -19,7 +19,7 @@ namespace AtlasTracker.Models
         public Guid CompanyToken { get; set; }
 
         [DisplayName("Company")]
-        public int CommentId { get; set; }
+        public int CompanyId { get; set; }
 
         [DisplayName("Project")]
         public int ProjectId { get; set; }

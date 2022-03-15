@@ -13,7 +13,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.IviteDate)
+                @Html.DisplayNameFor(model => model.InviteDate)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.JoinDate)
@@ -22,7 +22,7 @@
                 @Html.DisplayNameFor(model => model.CompanyToken)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CommentId)
+                @Html.DisplayNameFor(model => model.CompanyId)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.InviteeEmail)
@@ -55,7 +55,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.IviteDate)
+                @Html.DisplayFor(modelItem => item.InviteDate)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.JoinDate)
@@ -64,7 +64,7 @@
                 @Html.DisplayFor(modelItem => item.CompanyToken)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CommentId)
+                @Html.DisplayFor(modelItem => item.CompanyId)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.InviteeEmail)

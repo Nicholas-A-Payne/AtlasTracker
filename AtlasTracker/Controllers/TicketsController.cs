@@ -308,6 +308,7 @@ namespace AtlasTracker.Controllers
                 return NotFound();
             }
 
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description");
             ViewData["TicketPriorityId"] = new SelectList(await _lookUpService.GetTicketPrioritiesAsync(), "Id", "Name", ticket.TicketPriorityId);
             ViewData["TicketStatusId"] = new SelectList(await _lookUpService.GetTicketStatusesAsync(), "Id", "Name", ticket.TicketStatusId);
             ViewData["TicketTypeId"] = new SelectList(await _lookUpService.GetTicketTypesAsync(), "Id", "Name", ticket.TicketTypeId);
@@ -354,6 +355,7 @@ namespace AtlasTracker.Controllers
 
                 return RedirectToAction(nameof(AllTickets));
             }
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description");
             ViewData["TicketPriorityId"] = new SelectList(await _lookUpService.GetTicketPrioritiesAsync(), "Id", "Name", ticket.TicketPriorityId);
             ViewData["TicketStatusId"] = new SelectList(await _lookUpService.GetTicketStatusesAsync(), "Id", "Name", ticket.TicketStatusId);
             ViewData["TicketTypeId"] = new SelectList(await _lookUpService.GetTicketTypesAsync(), "Id", "Name", ticket.TicketTypeId);
