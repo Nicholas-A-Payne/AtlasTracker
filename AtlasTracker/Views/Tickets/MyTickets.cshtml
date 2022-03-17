@@ -26,10 +26,10 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <strong>All Tickets</strong>
+                <strong>My Tickets</strong>
             </div>
             <div class="card-body">
-                <table class="table">
+                                <table class="table" id="myTable">
                     <thead>
                         <tr>
                             <th>
@@ -68,47 +68,55 @@
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            <tr>
-                                <td>
+                                <tr>
+                                    <td>
                                     @Html.DisplayFor(modelItem => item.Title)
-                                </td>
-                                <td>
+                                    </td>
+                                    <td>
                                     @Html.DisplayFor(modelItem => item.Description)
-                                </td>
-                                <td>
+                                    </td>
+                                    <td>
                                     @Html.DisplayFor(modelItem => item.Created)
-                                </td>
+                                    </td>
 
-                                <td>
+                                    <td>
                                     @Html.DisplayFor(modelItem => item.Archived)
-                                </td>
+                                    </td>
 
-                                <td>
+                                    <td>
                                     @Html.DisplayFor(modelItem => item.Projects.Name)
-                                </td>
-                                <td>
+                                    </td>
+                                    <td>
                                     @Html.DisplayFor(modelItem => item.TicketPriority.Name)
-                                </td>
-                                <td>
+                                    </td>
+                                    <td>
                                     @Html.DisplayFor(modelItem => item.TicketTypes.Name)
-                                </td>
-                                <td>
+                                    </td>
+                                    <td>
                                     @Html.DisplayFor(modelItem => item.TicketStatus.Name)
-                                </td>
-                                <td>
+                                    </td>
+                                    <td>
                                     @Html.DisplayFor(modelItem => item.DeveloperUser.Id)
-                                </td>
-                                <td>
-                                    <a class="btn btn-outline-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                                    <a class="btn btn-outline-secondary btn-sm" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                                    <a class="btn btn-outline-danger btn-sm" asp-action="Archive" asp-route-id="@item.Id">Archive</a>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-outline-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                        <a class="btn btn-outline-secondary btn-sm" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                                        <a class="btn btn-outline-danger btn-sm" asp-action="Archive" asp-route-id="@item.Id">Archive</a>
+                                    </td>
+                                </tr>
                         }
                     </tbody>
                 </table>
+
             </div>
         </div>
     </div>
 </div>
 
+@section scripts{
+<script>
+    $(document).ready( function () {
+    $('#myTable').DataTable();
+} );
+</script>
+}

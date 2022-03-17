@@ -19,11 +19,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using AtlasTracker.Data;
 
 namespace AtlasTracker.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
+        private readonly ApplicationDbContext _context;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
         private readonly IUserStore<AppUser> _userStore;
@@ -36,7 +38,8 @@ namespace AtlasTracker.Areas.Identity.Pages.Account
             IUserStore<AppUser> userStore,
             SignInManager<AppUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender, 
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -44,6 +47,7 @@ namespace AtlasTracker.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         /// <summary>
@@ -98,6 +102,24 @@ namespace AtlasTracker.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+
+            [Required]
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+
+            [Required]
+            [Display(Name = "Last Name")]
+            public string LastName { get; set; }
+
+            [Required]
+            [Display(Name = "Company Name")]
+            public string CompanyName { get; set; }
+
+            [Required]
+            [Display(Name = "Company Description")]
+            public string CompanyDescription { get; set; }
+
         }
 
 
@@ -111,9 +133,20 @@ namespace AtlasTracker.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            
             if (ModelState.IsValid)
             {
-                var user = CreateUser();
+                Company company = new()
+                {
+                    Name = Input.CompanyName,
+                    Descript = Input.CompanyDescription
+                };
+
+                await _context.AddAsync(company);
+                await _context.SaveChangesAsync();
+
+
+                var user = CreateUser(company.Id);
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -155,11 +188,16 @@ namespace AtlasTracker.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private AppUser CreateUser()
+        private AppUser CreateUser(int companyId)
         {
             try
             {
-                return Activator.CreateInstance<AppUser>();
+                AppUser appUser = Activator.CreateInstance<AppUser>();
+                appUser.FirstName = Input.FirstName;
+                appUser.LastName = Input.LastName;
+                appUser.CompanyId = companyId;
+
+                return appUser;
             }
             catch
             {

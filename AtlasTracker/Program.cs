@@ -24,7 +24,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.Re
     .AddDefaultTokenProviders();
 
 
-//Custome Services---------------------------------------------------------------------------------------------------
+//Custom Services---------------------------------------------------------------------------------------------------
 builder.Services.AddScoped<IBTRolesService, BTRoleService>();
 builder.Services.AddScoped<IBTCompanyInfoService, BTCompanyInfoService>();
 builder.Services.AddScoped<IBTProjectService, BTProjectService>();
@@ -36,6 +36,7 @@ builder.Services.AddScoped<IBTTicketHistoryService, BTTicketHistoryService>();
 builder.Services.AddScoped<IBTInviteService, BTInviteService >();
 builder.Services.AddScoped<IEmailSender, BTEmailService>();
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddScoped<IBTNotificationService, BTNotificationService>();
 
 
 
@@ -67,7 +68,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Landing}/{id?}");
 app.MapRazorPages();
 
 app.Run();
