@@ -8,9 +8,6 @@
 
 <h1>UnassignedProjects</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -19,9 +16,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Created)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.StartDate)
@@ -33,9 +27,6 @@
 
             <th>
                 @Html.DisplayNameFor(model => model.Archived)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Company)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ProjectPriority)
@@ -56,9 +47,6 @@
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Created)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.StartDate)
             </td>
             <td>
@@ -71,19 +59,15 @@
                 @Html.DisplayFor(modelItem => item.Archived)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Company.Name)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.ProjectPriority.Name)
             </td>
             <td>
-                 
+                 N/A
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a class="btn btn-sm btn-outline-primary" asp-action="AssignPM" asp-route-projectid="@item.Id">Assign PM</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a class="btn btn-outline-secondary btn-sm" asp-action="Details" asp-route-id="@item.Id">Details</a> 
+                <a class="btn btn-sm btn-outline-primary" asp-action="AssignPM" asp-route-projectid="@item.Id">Assign PM</a> 
+                
             </td>
         </tr>
 }

@@ -291,7 +291,7 @@ namespace AtlasTracker.Services
                                         .Include(p => p.Members)
                                         .FirstOrDefaultAsync(p => p.Id == projectId);
 
-                foreach (AppUser member in project?.Members)
+                foreach (AppUser member in project!.Members)
                 {
                     if (await _rolesService.IsUserInRoleAsync(member, AppRole.ProjectManager.ToString()))
                     {

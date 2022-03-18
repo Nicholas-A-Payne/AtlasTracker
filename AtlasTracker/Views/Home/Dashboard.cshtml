@@ -783,4 +783,20 @@
     </div>
 </div>
 
+@section scripts{
+    <script>
+        var message = '@(ViewBag.SwalMessage)';
+        if(message != '')
+        {
+            Swal.fire({
+                icon: 'success',
+                title: message,
+                showConfirmButton: true
+            })
+        }
+    </script>
+
+
+}
+
 

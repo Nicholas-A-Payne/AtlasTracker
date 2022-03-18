@@ -233,7 +233,7 @@ namespace AtlasTracker.Areas.Identity.Pages.Account
                 appUser.LastName = Input.LastName;
                 appUser.CompanyId = companyId;
 
-                return Activator.CreateInstance<AppUser>();
+                return appUser;
             }
             catch
             {

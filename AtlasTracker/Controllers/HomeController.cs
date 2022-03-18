@@ -45,8 +45,10 @@ namespace AtlasTracker.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Dashboard(string swalMessage = null!)
         {
+            ViewData["SwalMessage"] = swalMessage;
+
             DashboardViewModel model = new();
             int companyId = User.Identity.GetCompanyId();
             model.Company = await _companyInfoService.GetCompanyInfoByIdAsync(companyId);

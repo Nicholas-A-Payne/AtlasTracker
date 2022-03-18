@@ -290,26 +290,27 @@ namespace AtlasTracker.Controllers
                     //: Ticket Create Notification
                     AppUser projectManager = await _projectService.GetProjectManagerAsync(ticket.ProjectId);
                     int companyId = User.Identity!.GetCompanyId();
-                    Notification notification = new()
-                    {
-                        TicketId = ticket.Id,
-                        Title = "New Ticket",
-                        Message = $"New Ticket: {ticket.Title}, was created by {appUser.FullName}",
-                        Created = DateTime.UtcNow,
-                        SenderId = appUser.Id,
-                        RecipentId = projectManager?.Id
-                    };
-                    if (projectManager != null)
-                    {
-                        await _notificationService.AddNotificationAsync(notification);
-                        await _notificationService.SendEmailNotificationAsync(notification, "New Ticket Added");
-                    }
-                    else
-                    {
-                        //Admin notification
-                        await _notificationService.AddNotificationAsync(notification);
-                        await _notificationService.SendEmailNotificationsByRoleAsync(notification, companyId, nameof(AppRole.Admin));
-                    }
+
+                    //Notification notification = new()
+                    //{
+                    //    TicketId = ticket.Id,
+                    //    Title = "New Ticket",
+                    //    Message = $"New Ticket: {ticket.Title}, was created by {appUser.FullName}",
+                    //    Created = DateTime.UtcNow,
+                    //    SenderId = appUser.Id,
+                    //    RecipentId = projectManager?.Id
+                    //};
+                    //if (projectManager != null)
+                    //{
+                    //    await _notificationService.AddNotificationAsync(notification);
+                    //    await _notificationService.SendEmailNotificationAsync(notification, "New Ticket Added");
+                    //}
+                    //else
+                    //{
+                    //    //Admin notification
+                    //    await _notificationService.AddNotificationAsync(notification);
+                    //    await _notificationService.SendEmailNotificationsByRoleAsync(notification, companyId, nameof(AppRole.Admin));
+                    //}
 
                 }
                 catch (Exception)
@@ -333,7 +334,7 @@ namespace AtlasTracker.Controllers
 
 
             ViewData["TicketPriorityId"] = new SelectList(await _lookUpService.GetTicketPrioritiesAsync(), "Id", "Name");
-            ViewData["TicketTypeId"] = new SelectList(await _lookUpService.GetTicketTypesAsync(), "Id", "Name");
+            ViewData["TicketTypeId"] = new SelectList(await _lookUpService.GetTicketTypesAsync(), "Id", "Name", ticket.TicketTypeId);
 
             return View(ticket);
         }

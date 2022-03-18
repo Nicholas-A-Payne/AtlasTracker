@@ -172,7 +172,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-parent">
-                                    <a class="nav-link" href="#">
+                                    <a class="nav-link">
                                         <i class="bx bx-cart-alt" aria-hidden="true"></i>
                                         <span>Projects</span>
                                     </a>
@@ -212,8 +212,8 @@
                                         }
                                     </ul>
                                 </li>
-                                <li class="nav-parent nav-expanded nav-active">
-                                    <a class="nav-link" href="#">
+                                <li class="nav-parent">
+                                    <a class="nav-link">
                                         <i class="bx bx-layout" aria-hidden="true"></i>
                                         <span>Tickets</span>
                                     </a>
@@ -253,6 +253,15 @@
                                         }
                                     </ul>
                                 </li>
+                                @if (User.IsInRole(nameof(AppRole.Admin)))
+                                {
+                                    <li>
+                                    <a class="nav-link" asp-action="Create" asp-controller="Invites">
+                                        <i class="bx bx-home-alt" aria-hidden="true"></i>
+                                        <span>Invite</span>
+                                    </a>
+                                </li>
+                                }
                             </ul>
                         </nav>
                     </div>
@@ -400,6 +409,8 @@
 
     <!-- Examples -->
     <script src="/Template/js/examples/examples.dashboard.js"></script>
+
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @RenderSection("scripts", required: false)
 
 </body>

@@ -122,7 +122,7 @@ namespace AtlasTracker.Controllers
 
                 await _inviteService.AddNewInviteAsync(invite);
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("DashBoard", "Home", new { swalMessage = "Invite Sent!"});
             }
 
 

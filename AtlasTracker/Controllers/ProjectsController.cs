@@ -256,7 +256,6 @@ namespace AtlasTracker.Controllers
                 }
                 catch (Exception)
                 {
-
                     throw;
                 }
             }
@@ -286,14 +285,14 @@ namespace AtlasTracker.Controllers
             if (projectManager != null)
             {
                 model.PMList = new SelectList(await _rolesService.GetUsersInRoleAsync(nameof(AppRole.ProjectManager), companyId), "Id", "FullName", projectManager!.Id);
-
             }
             else
             {
                 model.PriorityList = new SelectList(await _lookUpService.GetProjectPrioritiesAsync(), "Id", "Name");
-
             }
 
+            model.PMList = new SelectList(await _rolesService.GetUsersInRoleAsync(nameof(AppRole.ProjectManager), companyId), "Id", "FullName");
+            model.PriorityList = new SelectList(await _lookUpService.GetProjectPrioritiesAsync(), "Id", "Name");
             return View(model);
         }
 
@@ -302,7 +301,7 @@ namespace AtlasTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, AddProjectWithPMViewModel model, Project project)
+        public async Task<IActionResult> Edit(int id, AddProjectWithPMViewModel model)
         {
             int companyId = User.Identity.GetCompanyId();
 
@@ -322,7 +321,7 @@ namespace AtlasTracker.Controllers
                     model.Project.StartDate = DateTime.SpecifyKind(model.Project.StartDate, DateTimeKind.Utc);
                     model.Project.EndDate = DateTime.SpecifyKind(model.Project.EndDate, DateTimeKind.Utc);
 
-                    await _projectService.UpdateProjectAsync(project);
+                    await _projectService.UpdateProjectAsync(model.Project);
 
                     if (!string.IsNullOrEmpty(model.PMID))
                     {

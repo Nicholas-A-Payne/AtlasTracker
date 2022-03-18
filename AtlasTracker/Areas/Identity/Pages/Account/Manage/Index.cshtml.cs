@@ -137,7 +137,6 @@ namespace AtlasTracker.Areas.Identity.Pages.Account.Manage
             if (Input.AvatarData != null)
             {
                user.AvatarData = await _fileService.ConvertFileToByteArrayAsync(Input.AvatarFormFile);
-                
             }
             await _userManager.UpdateAsync(user);
 
