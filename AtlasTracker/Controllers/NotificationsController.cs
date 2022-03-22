@@ -28,7 +28,7 @@ namespace AtlasTracker.Controllers
         }
 
         // GET: Notifications/Details/5
-        public async Task<IActionResult> Details(string id)
+        public async Task<IActionResult> Details(int id)
         {
             if (id == null)
             {
@@ -100,7 +100,7 @@ namespace AtlasTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,TicketId,Title,Message,Created,RecipentId,SenderId,Viewed,NotificationTypeId")] Notification notification)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,TicketId,Title,Message,Created,RecipentId,SenderId,Viewed,NotificationTypeId")] Notification notification)
         {
             if (id != notification.Id)
             {
@@ -134,7 +134,7 @@ namespace AtlasTracker.Controllers
         }
 
         // GET: Notifications/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(int id)
         {
             if (id == null)
             {
@@ -157,7 +157,7 @@ namespace AtlasTracker.Controllers
         // POST: Notifications/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var notification = await _context.Notifications.FindAsync(id);
             _context.Notifications.Remove(notification);
@@ -165,7 +165,7 @@ namespace AtlasTracker.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool NotificationExists(string id)
+        private bool NotificationExists(int id)
         {
             return _context.Notifications.Any(e => e.Id == id);
         }

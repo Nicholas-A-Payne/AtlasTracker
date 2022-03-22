@@ -36,6 +36,7 @@ namespace AtlasTracker.Extensions
             return $"Maximum allowed file size is { _maxFileSize} bytes.";
         }
     }
+
     public class AllowedExtensionsAttribute : ValidationAttribute
     {
         private readonly string[] _extensions;

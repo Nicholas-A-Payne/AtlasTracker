@@ -7,7 +7,7 @@ namespace AtlasTracker.Models
     {
 //Primary Key---------------------------------------------------------------------------------------------
 
-        public string? Id { get; set; }
+        public int Id { get; set; }
 
 //Notification Properties---------------------------------------------------------------------------------
 

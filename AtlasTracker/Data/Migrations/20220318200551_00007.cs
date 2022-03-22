@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace AtlasTracker.Data.Migrations
 {
-    public partial class initial_AT0001 : Migration
+    public partial class _00007 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -311,10 +311,10 @@ namespace AtlasTracker.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    IviteDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    InviteDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     JoinDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     CompanyToken = table.Column<Guid>(type: "uuid", nullable: false),
-                    CommentId = table.Column<int>(type: "integer", nullable: false),
+                    CompanyId = table.Column<int>(type: "integer", nullable: false),
                     ProjectId = table.Column<int>(type: "integer", nullable: false),
                     InvitorId = table.Column<string>(type: "text", nullable: false),
                     InviteeId = table.Column<string>(type: "text", nullable: true),
@@ -322,8 +322,7 @@ namespace AtlasTracker.Data.Migrations
                     InviteeFirstName = table.Column<string>(type: "text", nullable: false),
                     InviteeLastName = table.Column<string>(type: "text", nullable: false),
                     Message = table.Column<string>(type: "text", nullable: true),
-                    IsValid = table.Column<bool>(type: "boolean", nullable: false),
-                    CompanyId = table.Column<int>(type: "integer", nullable: true)
+                    IsValid = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -343,7 +342,8 @@ namespace AtlasTracker.Data.Migrations
                         name: "FK_Invites_Companies_CompanyId",
                         column: x => x.CompanyId,
                         principalTable: "Companies",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Invites_Projects_ProjectId",
                         column: x => x.ProjectId,
@@ -415,7 +415,8 @@ namespace AtlasTracker.Data.Migrations
                 name: "Notifications",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TicketId = table.Column<int>(type: "integer", nullable: true),
                     Title = table.Column<string>(type: "text", nullable: false),
                     Message = table.Column<string>(type: "text", nullable: false),

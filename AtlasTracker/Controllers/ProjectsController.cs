@@ -126,7 +126,7 @@ namespace AtlasTracker.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin, ProjectManager")]
-        public async Task<IActionResult> AssignMembers(int? projectId)
+        public async Task<IActionResult> AssignMembers(int projectId)
         {
             if(projectId == null)
             {
@@ -140,6 +140,8 @@ namespace AtlasTracker.Controllers
             List<AppUser> submitters = await _rolesService.GetUsersInRoleAsync(nameof(AppRole.Submitter), companyId);
 
             List<AppUser> teamMembers = developers.Concat(submitters).ToList();
+
+            model.Project = await _projectService.GetProjectByIdAsync(projectId, companyId);
 
             List<string> projectMembers = model.Project.Members.Select(x => x.Id).ToList(); 
 

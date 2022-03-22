@@ -134,7 +134,10 @@ namespace AtlasTracker.Areas.Identity.Pages.Account.Manage
                 }
             }
 
-            if (Input.AvatarData != null)
+            user.FirstName = Input.FirstName;
+            user.LastName = Input.LastName;
+
+            if (Input.AvatarFormFile != null)
             {
                user.AvatarData = await _fileService.ConvertFileToByteArrayAsync(Input.AvatarFormFile);
             }

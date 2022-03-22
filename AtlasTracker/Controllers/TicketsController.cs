@@ -129,6 +129,17 @@ namespace AtlasTracker.Controllers
 
         }
 
+        public async Task<IActionResult> ShowFile(int id)
+        {
+            TicketAttatchment ticketAttachment = await _ticketService.GetTicketAttachmentByIdAsync(id);
+            string fileName = ticketAttachment.FileName;
+            byte[] fileData = ticketAttachment.FileData;
+            string ext = Path.GetExtension(fileName).Replace(".", "");
+
+            Response.Headers.Add("Content-Disposition", $"inline; filename={fileName}");
+            return File(fileData, $"application/{ext}");
+        }
+
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AssignPM(int id)
@@ -141,6 +152,25 @@ namespace AtlasTracker.Controllers
                                                 "Id", "FullName");
             return View(model);
         }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin, ProjectManager")]
+        public async Task<IActionResult> AssignDeveloper(int? ticketId)
+        {
+            if (ticketId == null)
+            {
+                return NotFound();
+            }
+
+            int company = User.Identity.GetCompanyId();
+            AssignDeveloperViewModel model = new();
+
+            model.Ticket = await _ticketService.GetTicketByIdAsync(ticketId.Value);
+            model.Developers = new SelectList(await _projectService.GetProjectMembersByRoleAsync(model.Ticket.ProjectId, nameof(AppRole.Developer)), "Id", "FullName");
+
+            return View(model);
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -221,15 +251,7 @@ namespace AtlasTracker.Controllers
                 return NotFound();
             }
 
-            var ticket = await _context.Tickets
-                .Include(t => t.DeveloperUser)
-                .Include(t => t.OwnerUser)
-                .Include(t => t.Projects)
-                .Include(t => t.TicketPriority)
-                .Include(t => t.Attatchments)
-                .Include(t => t.TicketStatus)
-                .Include(t => t.TicketTypes)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var ticket = await _ticketService.GetTicketByIdAsync(id.Value);
 
             if (ticket == null)
             {
@@ -291,26 +313,27 @@ namespace AtlasTracker.Controllers
                     AppUser projectManager = await _projectService.GetProjectManagerAsync(ticket.ProjectId);
                     int companyId = User.Identity!.GetCompanyId();
 
-                    //Notification notification = new()
-                    //{
-                    //    TicketId = ticket.Id,
-                    //    Title = "New Ticket",
-                    //    Message = $"New Ticket: {ticket.Title}, was created by {appUser.FullName}",
-                    //    Created = DateTime.UtcNow,
-                    //    SenderId = appUser.Id,
-                    //    RecipentId = projectManager?.Id
-                    //};
-                    //if (projectManager != null)
-                    //{
-                    //    await _notificationService.AddNotificationAsync(notification);
-                    //    await _notificationService.SendEmailNotificationAsync(notification, "New Ticket Added");
-                    //}
-                    //else
-                    //{
-                    //    //Admin notification
-                    //    await _notificationService.AddNotificationAsync(notification);
-                    //    await _notificationService.SendEmailNotificationsByRoleAsync(notification, companyId, nameof(AppRole.Admin));
-                    //}
+                    Notification notification = new()
+                    {
+                        TicketId = ticket.Id,
+                        NotificationTypeId = (await _lookUpService.LookupNotificationTypeIdAsync(nameof(BTNotificationType.Ticket))).Value,
+                        Title = "New Ticket",
+                        Message = $"New Ticket: {ticket.Title}, was created by {appUser.FullName}",
+                        Created = DateTime.UtcNow,
+                        SenderId = appUser.Id,
+                        RecipentId = projectManager?.Id
+                    };
+                    if (projectManager != null)
+                    {
+                        await _notificationService.AddNotificationAsync(notification);
+                        await _notificationService.SendEmailNotificationAsync(notification, "New Ticket Added");
+                    }
+                    else
+                    {
+                        //Admin notification
+                        await _notificationService.AddNotificationAsync(notification);
+                        await _notificationService.SendEmailNotificationsByRoleAsync(notification, companyId, nameof(AppRole.Admin));
+                    }
 
                 }
                 catch (Exception)
@@ -456,17 +479,20 @@ namespace AtlasTracker.Controllers
         {
             string statusMessage;
 
+            ModelState.Remove("UserId");
+
             if (ModelState.IsValid && ticketAttachment.FormFile != null)
             {
                 ticketAttachment.FileData = await _fileService.ConvertFileToByteArrayAsync(ticketAttachment.FormFile);
                 ticketAttachment.FileName = ticketAttachment.FormFile.FileName;
                 ticketAttachment.FileType = ticketAttachment.FormFile.ContentType;
 
-                ticketAttachment.Created = DateTimeOffset.Now;
+                ticketAttachment.Created = DateTimeOffset.UtcNow;
                 ticketAttachment.UserId = _userManager.GetUserId(User);
 
                 await _ticketService.AddTicketAttachmentAsync(ticketAttachment);
                 statusMessage = "Success: New attachment added to Ticket.";
+                await _ticketHistoryService.AddHistoryAsync(ticketAttachment.TicketId, nameof(TicketAttatchment), ticketAttachment.UserId);
             }
             else
             {

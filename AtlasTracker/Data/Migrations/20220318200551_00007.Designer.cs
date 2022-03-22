@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AtlasTracker.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220314190127_0005")]
-    partial class _0005
+    [Migration("20220318200551_00007")]
+    partial class _00007
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -210,8 +210,11 @@ namespace AtlasTracker.Data.Migrations
 
             modelBuilder.Entity("AtlasTracker.Models.Notification", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("timestamp with time zone");
