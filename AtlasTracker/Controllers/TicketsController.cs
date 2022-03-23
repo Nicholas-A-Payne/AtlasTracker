@@ -212,7 +212,7 @@ namespace AtlasTracker.Controllers
                     await _notificationService.SendEmailNotificationAsync(devNotification, "Ticket Updated");
                 }
             }
-            return RedirectToAction(nameof(Details));
+            return View("Details");
         }
 
         [HttpPost]

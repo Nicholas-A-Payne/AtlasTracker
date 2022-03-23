@@ -1,30 +1,29 @@
 ﻿@model AtlasTracker.Models.ViewModels.AssignDeveloperViewModel
 
-<div class="container">
-    <h2>Assign Developers</h2>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <label asp-for="@Model.Developers" class="control-label">Assign Developers to the Ticket</label>
-                </div>
-                <div class="card-body">
-                    <form method="post" asp-action="AssignDeveloepr" asp-controller="Tickets">
-                        <input hidden asp-for="TicketId" />
 
-                        <div class="form-group">
-                            <label class="control-label">Select Developer</label>
-                            <select asp-for="DeveloperId" class="form-control" asp-items="@Model.Developers">
-                                <option></option>
-                            </select>
-                            <input type="submit" value="Assign" class="btn btn-primary" />
-                        </div>
-                    </form>
-                </div>
+
+@{
+    ViewData["Title"] = "Assign Dev";
+}
+<h1>Ticket : @Model?.Ticket?.Title</h1>
+<h4>Assign Ticket Developer</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" asp-action="AssignDeveloper" asp-controller="Tickets">
+            <input hidden asp-for="Ticket!.Id" />
+            <h2>@Model.Ticket?.Title </h2>
+            <p>@Model.Ticket?.Description </p>
+            <div class="form-group">
+                <label class="control-label">Select Ticket Developer</label>
+                <select asp-for="DeveloperId" class="form-control" asp-items="@Model.Developers">
+                    <option></option>
+                </select>
+                <input type="submit" value="Assign" class="btn btn-primary" />
             </div>
-        </div>
+        </form>
     </div>
-    <div>
-        <a asp-action="Dashboard" asp-controller="Home">Back to Dash</a>
-    </div>
+</div>
+<div>
+    <a asp-action="UnassignedTickets">Back to List</a>
 </div>

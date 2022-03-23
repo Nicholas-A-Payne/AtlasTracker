@@ -8,8 +8,8 @@
 
 @{
     ViewData["Title"] = "Details";
-    AppUser appUser = await UserManager.GetUserAsync(User);
-    AppUser projectManager = await ProjectService.GetProjectManagerAsync(Model.ProjectId);
+    AppUser appUser = await UserManager.GetUserAsync(User);  
+    AppUser projectManager = await ProjectService.GetProjectManagerAsync(Model.ProjectId);  
 }
 
 <h1>Ticket Details</h1>
