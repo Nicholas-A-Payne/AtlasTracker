@@ -178,6 +178,8 @@ namespace AtlasTracker.Controllers
         {
             if (model.DeveloperId != null)
             {
+                model.Ticket = await _ticketService.GetTicketByIdAsync(model.Ticket.Id);
+                await _ticketService.AssignTicketAsync(model.Ticket.Id, model.DeveloperId);
                 AppUser appUser = await _userManager.GetUserAsync(User);
 
                 Ticket oldTicket = await _ticketService.GetTicketAsNoTrackingAsync(model.Ticket!.Id);
@@ -210,9 +212,11 @@ namespace AtlasTracker.Controllers
                     };
                     await _notificationService.AddNotificationAsync(devNotification);
                     await _notificationService.SendEmailNotificationAsync(devNotification, "Ticket Updated");
+
+                    return RedirectToAction(nameof(AllTickets));
                 }
             }
-            return View("Details");
+            return RedirectToAction(nameof(AssignDeveloper), new {ticketId = model.Ticket.Id});
         }
 
         [HttpPost]

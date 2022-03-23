@@ -33,12 +33,15 @@ namespace AtlasTracker.Models
         [DisplayName("Archvied by Project")]
         public bool ArchivedByProject { get; set; }
 
+        [DisplayName("Project")]
         public int ProjectId { get; set; }
 
         public int TicketTypeId { get; set; }
 
+        [DisplayName("Priority")]
         public int TicketPriorityId { get; set; }
 
+        [DisplayName("Status")]
         public int TicketStatusId { get; set; }
 
         [Required]
