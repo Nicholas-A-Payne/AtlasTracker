@@ -400,6 +400,7 @@ namespace AtlasTracker.Controllers
             {
                 return NotFound();
             }
+            ModelState.Remove("OwnerUserId");
 
             if (ModelState.IsValid)
             {

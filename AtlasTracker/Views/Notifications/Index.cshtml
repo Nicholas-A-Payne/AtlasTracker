@@ -4,11 +4,9 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Notifications</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+
 <table class="table">
     <thead>
         <tr>
@@ -52,7 +50,7 @@
                 @Html.DisplayFor(modelItem => item.Created)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.RecipentId)
+                @Html.DisplayFor(modelItem => item.Recipient.FullName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Viewed)
@@ -64,7 +62,7 @@
                 @Html.DisplayFor(modelItem => item.NotificationType.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Sender.Id)
+                @Html.DisplayFor(modelItem => item.Sender.FullName)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

@@ -6,12 +6,10 @@
 @inject UserManager<AppUser> UserManager
 @inject IBTNotificationService Notifications
 
-	@{
+@{
     AppUser appUser = await UserManager.GetUserAsync(User);
 
     List<Notification> notifications = await Notifications.GetReceivedNotificationsAsync(appUser.Id);
-
-
 }
 
 <!doctype html>
@@ -159,21 +157,30 @@
                                         <span>Projects</span>
                                     </a>
                                     <ul class="nav nav-children">
-                                        <li>
-                                            <a class="nav-link" asp-action="Create" asp-controller="Projects">
-                                                New Project
-                                            </a>
-                                        </li>
+
+                                        @if (User.IsInRole(nameof(AppRole.Admin)) || User.IsInRole(nameof(AppRole.ProjectManager)))
+                                        {
+                                            <li>
+                                                <a class="nav-link" asp-action="Create" asp-controller="Projects">
+                                                    New Project
+                                                </a>
+                                            </li>
+                                        }
+
+
                                         <li>
                                             <a class="nav-link" asp-action="AllProjects" asp-controller="Projects">
                                                 All Projects
                                             </a>
                                         </li>
-                                        <li>
-                                            <a class="nav-link" asp-action="MyProjects" asp-controller="Projects">
-                                                My Projects
-                                            </a>
-                                        </li>
+                                        @if (User.IsInRole(nameof(AppRole.ProjectManager)) || User.IsInRole(nameof(AppRole.Developer)) || User.IsInRole(nameof(AppRole.Submitter)))
+                                        {
+                                            <li>
+                                                <a class="nav-link" asp-action="MyProjects" asp-controller="Projects">
+                                                    My Projects
+                                                </a>
+                                            </li>
+                                        }
 
                                         @if (User.IsInRole(nameof(AppRole.Admin)) || User.IsInRole(nameof(AppRole.ProjectManager)))
                                         {
@@ -184,7 +191,7 @@
                                             </li>
                                         }
 
-                                        @if (User.IsInRole(nameof(AppRole.Admin)))
+                                        @if (User.IsInRole(nameof(AppRole.Admin)) || User.IsInRole(nameof(AppRole.ProjectManager)))
                                         {
                                             <li>
                                                 <a class="nav-link" asp-action="UnassignedProjects" asp-controller="Projects">
@@ -225,7 +232,7 @@
                                             </li>
                                         }
 
-                                        @if (User.IsInRole(nameof(AppRole.Admin)))
+                                        @if (User.IsInRole(nameof(AppRole.Admin)) || User.IsInRole(nameof(AppRole.ProjectManager)))
                                         {
                                             <li>
                                                 <a class="nav-link" asp-action="UnassignedTickets" asp-controller="Tickets">

@@ -122,14 +122,14 @@ namespace AtlasTracker.Services
                         };
                         await _context.AddAsync(history);
                     }
-                    if (oldTicket.DeveloperUserId != newTicket.DeveloperUserId)
+                    if (oldTicket.DeveloperUserId != newTicket!.DeveloperUserId)
                     {
                         TicketHistory history = new()
                         {
                             TicketId = newTicket.Id,
-                            PropertyName = "DeveloperUserId",
+                            PropertyName = "Developer",
                             OldValue = oldTicket.DeveloperUser?.FullName ?? "Not Assigned",
-                            NewValue = newTicket.DeveloperUser?.FullName,
+                            NewValue = newTicket.DeveloperUser.FullName,
                             Created = DateTime.UtcNow,
                             UserId = userId,
                             Description = $"New Ticket Developer: {newTicket.DeveloperUser!.FullName}"
