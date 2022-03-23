@@ -43,8 +43,8 @@
     <link rel="stylesheet" href="/Template/vendor/jquery-ui/jquery-ui.theme.css" />
     <link rel="stylesheet" href="/Template/vendor/bootstrap-multiselect/css/bootstrap-multiselect.css" />
     <link rel="stylesheet" href="/Template/vendor/morris/morris.css" />
-    
-    
+
+
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
 
     <!-- Theme CSS -->
@@ -66,12 +66,11 @@
     <section class="body">
 
         <!-- start: header -->
-        <header class="header">
-            <div class="logo-container">
-                <a href="../4.0.0" class="logo">
-                    <img src="/Template/img/logo.png" width="75" height="35" alt="Porto Admin" />
-                </a>
-
+        <header class="header topBar border-bottom border-dark">
+            <div>
+                <div class="logo pb-2">
+                    <img src="/img/Corvid-White-Black.PNG" height="50" alt="Raven" />
+                </div>
                 <div class="d-md-none toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
                     <i class="fas fa-bars" aria-label="Toggle sidebar"></i>
                 </div>
@@ -79,15 +78,15 @@
             </div>
 
             <!-- start: search & user box -->
-            <div class="header-right pb-5 mb-2">
+            <div class="header-right">
 
                 @if (SignInManager.IsSignedIn(User))
                 {
-                    <ul class="notifications px-5">
+                    <ul class="notifications px-5 mt-3">
                         <li>
-                            <a href="#" class="dropdown-toggle notification-icon pb-2" data-bs-toggle="dropdown">
+                            <a class="dropdown-toggle notification-icon" data-bs-toggle="dropdown">
                                 <i class="bx bx-bell"></i>
-                                <span class="badge">3</span>
+                                <span class="badge">@(notifications.Count)</span>
                             </a>
 
                             <div class="dropdown-menu notification-menu">
@@ -110,25 +109,6 @@
                                                 </a>
                                             </li>
                                         }
-
-                                        @*<li>
-                                            <a href="#" class="clearfix">
-                                            <div class="image">
-                                            <i class="bx bx-lock bg-warning text-light"></i>
-                                            </div>
-                                            <span class="title">User Locked</span>
-                                            <span class="message">15 minutes ago</span>
-                                            </a>
-                                            </li>
-                                            <li>
-                                            <a href="#" class="clearfix">
-                                            <div class="image">
-                                            <i class="fas fa-signal bg-success text-light"></i>
-                                            </div>
-                                            <span class="title">Connection Restaured</span>
-                                            <span class="message">10/10/2021</span>
-                                            </a>
-                                            </li>*@
                                     </ul>
 
                                     <hr />
@@ -165,6 +145,8 @@
                         <nav id="menu" class="nav-main" role="navigation">
                             <ul class="nav nav-main">
                                 <partial name="_LoginPartial" />
+                                <li>
+                                </li>
                                 <li>
                                     <a class="nav-link" asp-action="Dashboard" asp-controller="Home">
                                         <i class="bx bx-home-alt" aria-hidden="true"></i>
@@ -256,11 +238,11 @@
                                 @if (User.IsInRole(nameof(AppRole.Admin)))
                                 {
                                     <li>
-                                    <a class="nav-link" asp-action="Create" asp-controller="Invites">
-                                        <i class="bx bx-envelope" aria-hidden="true"></i>
-                                        <span>Invite</span>
-                                    </a>
-                                </li>
+                                        <a class="nav-link" asp-action="Create" asp-controller="Invites">
+                                            <i class="bx bx-envelope" aria-hidden="true"></i>
+                                            <span>Invite</span>
+                                        </a>
+                                    </li>
                                 }
                             </ul>
                         </nav>
@@ -405,7 +387,7 @@
     <!-- Theme Initialization Files -->
     <script src="/Template/js/theme.init.js"></script>
 
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js" ></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
     <!-- Examples -->
     <script src="/Template/js/examples/examples.dashboard.js"></script>

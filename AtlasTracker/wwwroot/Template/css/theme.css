@@ -5,7 +5,7 @@ Theme Version: 	4.0.0
 */
 html,
 body {
-	background: #ecedf0;
+
 	width: 100%;
 }
 
@@ -14,8 +14,31 @@ html {
 	overflow-y: scroll !important;
 }
 
+.pageBG {
+	background: url("/img/SwampBG.jpg") !important;
+	background-size: cover !important;
+	backdrop-filter: blur(8px);
+}
+
+.projectBG {
+	background: url("/img/SwampGreenBG.jpg") !important;
+	background-size: cover !important;
+	backdrop-filter: blur(8px);
+}
+
+.ticketBG {
+	background: url("/img/SwampPurpBG.jpg") !important;
+	background-size: cover !important;
+	backdrop-filter: blur(8px);
+}
+
+.topBar {
+	background: #1b6356 !important;
+	border-bottom: medium;
+	border-bottom-color: #000000;
+}
+
 body {
-	color: #777;
 	font-family: "Poppins", Arial, sans-serif;
 	line-height: 22px;
 	margin: 0;
@@ -37,13 +60,13 @@ a:active {
 
 /* Layout Base - Main Wrapper	*/
 .body {
-	min-height: 100vh;
+	min-height: 25vh;
 	width: 100%;
 }
 
 /* Layout Base - Header */
 .header {
-	height: 60px;
+	height: 70px;
 	left: 0;
 	position: absolute;
 	right: 0;
@@ -112,7 +135,7 @@ a:active {
 
 /* Layout Base - Page Header */
 .page-header {
-	background: #171717;
+	/*background: #171717;*/
 	border-bottom: none;
 	border-left: 1px solid #3A3A3A;
 	box-shadow: 1px 3px 0 1px #CCCCCC;
@@ -443,13 +466,13 @@ a:active {
 		z-index: 99;
 	}
 
-	.header .header-right {
-		background: #FFF;
-		float: none !important;
-		height: 60px;
-		margin-top: 60px;
-		width: 100%;
-	}
+		.header .header-right {
+			background: #117a64;
+			float: none !important;
+			height: 60px;
+			margin-top: 60px;
+			width: 100%;
+		}
 
 	.inner-wrapper {
 		min-height: 0;
@@ -3875,8 +3898,6 @@ html.dark .inner-menu .inner-menu-toggle-inside:after {
 /* Header */
 .header {
 	background: #FFF;
-	border-bottom: 1px solid #E9E9E6;
-	border-top: 3px solid #EDEDED;
 	z-index: 1000;
 }
 

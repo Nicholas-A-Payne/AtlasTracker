@@ -1,0 +1,30 @@
+﻿@model AtlasTracker.Models.ViewModels.AssignDeveloperViewModel
+
+<div class="container">
+    <h2>Assign Developers</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <label asp-for="@Model.Developers" class="control-label">Assign Developers to the Ticket</label>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="AssignDeveloepr" asp-controller="Tickets">
+                        <input hidden asp-for="TicketId" />
+
+                        <div class="form-group">
+                            <label class="control-label">Select Developer</label>
+                            <select asp-for="DeveloperId" class="form-control" asp-items="@Model.Developers">
+                                <option></option>
+                            </select>
+                            <input type="submit" value="Assign" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <a asp-action="Dashboard" asp-controller="Home">Back to Dash</a>
+    </div>
+</div>

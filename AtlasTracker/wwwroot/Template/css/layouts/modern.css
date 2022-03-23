@@ -12,6 +12,11 @@ html.modern .header {
 	z-index: 1011;
 }
 
+.pageBG {
+	background: url("'/img/Swamp Background Free Vector.jpg'")!important;
+	background-size: cover!important;
+}
+
 html.modern .header:not(.header-nav-menu) .logo .logo-image {
 	display: none;
 }

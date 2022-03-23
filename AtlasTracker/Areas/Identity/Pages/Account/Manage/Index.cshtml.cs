@@ -64,6 +64,10 @@ namespace AtlasTracker.Areas.Identity.Pages.Account.Manage
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
 
+            [EmailAddress]
+            [Display(Name = "Username/Email")]
+            public string Username { get; set; }
+
             [Display(Name = "First Name")]
             public string FirstName { get; set; }
 
@@ -90,6 +94,7 @@ namespace AtlasTracker.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
+                Username = userName,
                 FirstName = firstName,
                 LastName = lastName,
                 AvatarData = avatarPicture,
@@ -134,6 +139,7 @@ namespace AtlasTracker.Areas.Identity.Pages.Account.Manage
                 }
             }
 
+            user.UserName = Input.Username;
             user.FirstName = Input.FirstName;
             user.LastName = Input.LastName;
 
