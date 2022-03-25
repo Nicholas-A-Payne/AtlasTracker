@@ -1,4 +1,5 @@
-﻿@model IEnumerable<AtlasTracker.Models.Ticket>
+﻿@using AtlasTracker.Models.Enum
+@model IEnumerable<AtlasTracker.Models.Ticket>
 
 @{
     ViewData["Title"] = "ArchivedTickets";
@@ -24,7 +25,6 @@
                                 <th>
                                     @Html.DisplayNameFor(model => model.Created)
                                 </th>
-
                                 <th>
                                     @Html.DisplayNameFor(model => model.Archived)
                                 </th>
@@ -84,7 +84,10 @@
                                     <td>
                                         <a class="btn btn-outline-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
                                         <a class="btn btn-outline-secondary btn-sm" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                                        <a class="btn btn-outline-danger btn-sm" asp-action="Archive" asp-route-id="@item.Id">Archive</a>
+                                        @if (User.IsInRole(nameof(AppRole.Admin)) || User.IsInRole(nameof(AppRole.ProjectManager)))
+                                        {
+                                            <a class="btn btn-outline-success btn-sm" asp-action="Restore" asp-route-id="@item.Id">Restore</a>
+                                        }
                                     </td>
                                 </tr>
                             }

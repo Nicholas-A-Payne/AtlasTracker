@@ -433,6 +433,9 @@ namespace AtlasTracker.Controllers
                     else
                     {
                         //Admin notification
+                        AppUser admin = (await _rolesService.GetUsersInRoleAsync(nameof(AppRole.Admin), companyId)).FirstOrDefault();
+
+                        notification.RecipentId = admin.Id;
                         await _notificationService.AddNotificationAsync(notification);
                         await _notificationService.SendEmailNotificationsByRoleAsync(notification, companyId, nameof(AppRole.Admin));
                     }
