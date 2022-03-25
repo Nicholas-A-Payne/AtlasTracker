@@ -67,7 +67,7 @@
         <header class="header topBar border-bottom border-dark">
             <div>
                 <div class="logo pb-2">
-                   <a href="https://nicholas-payne-devportfolio.netlify.app/" target="_blank"> <img src="/img/Corvid-White-Black.PNG" height="50" alt="Raven" /> </a> 
+                    <a href="https://nicholas-payne-devportfolio.netlify.app/" target="_blank"> <img src="/img/Corvid-White-Black.PNG" height="50" alt="Raven" /> </a>
                 </div>
                 <div class="d-md-none toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
                     <i class="fas fa-bars" aria-label="Toggle sidebar"></i>
@@ -153,7 +153,7 @@
                                 </li>
                                 <li class="nav-parent">
                                     <a class="nav-link">
-                                        <i class="bx bx-cart-alt" aria-hidden="true"></i>
+                                        <i class='bx bx-spreadsheet'></i>
                                         <span>Projects</span>
                                     </a>
                                     <ul class="nav nav-children">
@@ -203,7 +203,7 @@
                                 </li>
                                 <li class="nav-parent">
                                     <a class="nav-link">
-                                        <i class="bx bx-layout" aria-hidden="true"></i>
+                                        <i class='bx bx-note'></i>
                                         <span>Tickets</span>
                                     </a>
                                     <ul class="nav nav-children">
@@ -244,19 +244,28 @@
                                 </li>
                                 @if (User.IsInRole(nameof(AppRole.Admin)))
                                 {
-                                    <li>
-                                        <a class="nav-link" asp-action="Create" asp-controller="Invites">
-                                            <i class="bx bx-envelope" aria-hidden="true"></i>
-                                            <span>Invite</span>
+                                    <li class="nav-parent">
+                                        <a class="nav-link">
+                                            <i class='bx bx-user'></i>
+                                            <span>Admin</span>
                                         </a>
+                                        <ul class="nav nav-children">
+                                            <li>
+                                                <a class="nav-link" asp-action="Create" asp-controller="Invites">
+                                                    <i class="bx bx-envelope" aria-hidden="true"></i>
+                                                    <span>Invite</span>
+                                                </a>
+                                            </li>
+
+                                            <li>
+                                                <a class="nav-link" asp-action="ManageUserRoles" asp-controller="UserRoles">
+                                                    <i class="bx bx-edit-alt" aria-hidden="true"></i>
+                                                    <span>Manage Roles</span>
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>
 
-                                    <li>
-                                        <a class="nav-link" asp-action="ManageUserRoles" asp-controller="UserRoles">
-                                            <i class="bx bx-envelope" aria-hidden="true"></i>
-                                            <span>Manage Roles</span>
-                                        </a>
-                                    </li>
                                 }
                             </ul>
                         </nav>

@@ -4,66 +4,28 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Archive</h1>
-<h3>Are you sure you want to Archive this ticket?</h3>
-<div>
-    <h4>Ticket</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Created)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Created)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Archived)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Archived)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Projects)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Projects.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TicketPriority)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TicketPriority.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TicketTypes)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TicketTypes.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TicketStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TicketStatus.Name)
-        </dd>
+<body class="archiveBG">
+    <div class="mb-5">
+        <h1 class="text-color-light text-center">Archive</h1>
+        <hr class="bg-light" />
+    </div>
+    <div class="card shadow">
+        <div class="card-header bg-danger">
+            <h2 class="text-center">Are you sure you want to Archive this ticket?</h2>
+        </div>
+        <div class="card-body">
+            <h4 class="text-center fw-bold my-1">Ticket:   @Html.DisplayFor(model => model.Title)</h4>
+            <h5 class="text-center fw-bolder my-1">For Project:   @Html.DisplayFor(model => model.Projects.Name)</h5>
+            <p class="text-center fw-bold">Ticket Priority: @Html.DisplayFor(model => model.TicketPriority.Name)</p>
+        </div>
+        <div class="card-footer">
+            <form asp-action="Archive">
+                <input type="hidden" asp-for="Id" />
+                <input type="submit" value="Archive" class="btn btn-danger" />
+                <a asp-action="AllTickets">Back to List</a>
+            </form>
+        </div>
+    </div>
 
-    </dl>
-    
-    <form asp-action="Archive">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Archive" class="btn btn-danger" /> |
-        <a asp-action="AllTickets">Back to List</a>
-    </form>
-</div>
+</body>
+

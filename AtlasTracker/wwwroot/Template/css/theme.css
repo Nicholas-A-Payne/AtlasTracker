@@ -32,6 +32,12 @@ html {
 	backdrop-filter: blur(8px);
 }
 
+.archiveBG {
+	background: url("/img/SwampRedBG.jpg") !important;
+	background-size: cover !important;
+	backdrop-filter: blur(8px);
+}
+
 .topBar {
 	background: #1b6356 !important;
 	border-bottom: medium;
