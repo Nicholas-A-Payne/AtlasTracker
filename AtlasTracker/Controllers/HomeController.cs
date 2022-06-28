@@ -27,15 +27,6 @@ namespace AtlasTracker.Controllers
 
         public IActionResult Index()
         {
-            if (User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("Dashboard", "Home");
-            }
-            return View();
-        }
-
-        public IActionResult Landing()
-        {
             return View();
         }
 
