@@ -30,10 +30,11 @@ namespace AtlasTracker.Controllers
             return View();
         }
 
-        public IActionResult Default()
+        public IActionResult Landing() 
         {
             return View();
         }
+
 
         [Authorize]
         public async Task<IActionResult> Dashboard(string swalMessage = null!)
